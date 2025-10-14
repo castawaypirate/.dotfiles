@@ -12,3 +12,15 @@ PS1='[\u@\h \W]\$ '
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+export NODE_OPTIONS=--openssl-legacy-provider
+
+export CAPACITOR_ANDROID_STUDIO_PATH="/opt/android-studio/bin/studio.sh"
+
+export ANDROID_SDK_ROOT=/opt/android-sdk
+export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin
+export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
+
+
+# Load Angular CLI autocompletion.
+source <(ng completion script)
