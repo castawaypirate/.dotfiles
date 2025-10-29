@@ -62,7 +62,6 @@ window#waybar {
 #jack,
 #tray,
 #window,
-#workspaces,
 #clock {
   padding: 2px 5px;
 }
@@ -73,9 +72,9 @@ window#waybar {
   padding-top: 0;
 }
 
-
-
-
+#workspaces button {
+  padding-right: 16px;
+}
 
 #battery.charging {
     color: #ffffff;

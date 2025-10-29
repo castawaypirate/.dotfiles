@@ -63,3 +63,13 @@ yarn.lock
 .config/Code/
 .config/discord/
 .config/Slack/
+
+# Emacs/Doom Emacs
+.config/emacs/              # Doom Emacs installation (can be re-cloned)
+.emacs.d/                   # Old/vanilla Emacs config directory
+.emacs.d.backup/            # Backup directory
+.local/share/doom/          # Doom Emacs data directory
+.local/state/emacs/         # Emacs state files
+
+# org-roam (optional - you may want to track your notes separately)
+# Notes/org/roam/           # Uncomment if you DON'T want to track notes here
