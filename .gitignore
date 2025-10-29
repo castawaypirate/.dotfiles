@@ -1,0 +1,65 @@
+# Backup files
+*.backup
+*.bak
+*.old
+*.orig
+*~
+
+# Sensitive files
+.ssh/id_*
+.ssh/*.pem
+.ssh/known_hosts
+.gnupg/
+.aws/credentials
+.config/gh/hosts.yml
+.env
+.env.*
+.password-store/
+.netrc
+
+# Cache directories
+.cache/
+.npm/
+.cargo/
+.rustup/
+.nuget/
+.dotnet/
+.local/share/nvim/
+.local/state/
+.mozilla/
+
+# History files
+.*_history
+.bash_history
+.zsh_history
+.python_history
+.lesshst
+.wget-hsts
+
+# Logs
+*.log
+.xsession-errors*
+
+# System files
+.DS_Store
+.Trash/
+.thumbnails/
+
+# Package manager locks (optional - you may want to track some)
+node_modules/
+package-lock.json
+yarn.lock
+
+# IDE/Editor specific
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Application state
+.config/BraveSoftware/
+.config/google-chrome/
+.config/chromium/
+.config/Code/
+.config/discord/
+.config/Slack/

@@ -136,3 +136,4 @@ alias dotfiles='git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
 if command -v ng &> /dev/null && [[ -z "$NG_CLI_ANALYTICS_SHARE" ]]; then
   source <(ng completion script) 2>/dev/null || true
 fi
+export PATH="$PATH:$HOME/.dotnet/tools"
