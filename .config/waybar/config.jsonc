@@ -73,7 +73,7 @@
 
    "cpu": {
       "interval": 1,
-      "format": "{usage:>2}% "
+      "format": " {usage}%"
    },
 
    "memory": {
