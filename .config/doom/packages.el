@@ -56,3 +56,13 @@
 ;; org-roam-ui
 (unpin! org-roam)
 (package! org-roam-ui)
+
+;; Apheleia - async formatter with dynamic patching
+;; Replaces format module for non-blocking formatting
+(package! apheleia)
+
+;; Node.js REPL for interactive vanilla JS development
+(package! nodejs-repl)
+
+;; Rainbow mode for colorizing color codes in CSS/Web modes
+(package! rainbow-mode)
