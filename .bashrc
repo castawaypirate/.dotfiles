@@ -22,6 +22,9 @@ export ANDROID_SDK_ROOT=/opt/android-sdk
 export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin
 export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
 
+# Godot Engine
+export PATH=$PATH:$HOME/System/Godot
+
 
 # Load Angular CLI autocompletion.
 source <(ng completion script)
