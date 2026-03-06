@@ -80,6 +80,13 @@
           (append (list "emacs-lsp-booster") res))
       res)))
 
+;; --- ADVANCED PERFORMANCE TUNING ---
+;; Increase the amount of data which Emacs reads from the process
+(setq read-process-output-max (* 3 1024 1024)) ;; 3mb
+
+;; Lower the idle delay for LSP responsiveness
+(setq lsp-idle-delay 0.1)
+
 ;; Disable JSON-RPC logging for performance
 (fset #'jsonrpc--log-event #'ignore)
 
@@ -148,12 +155,14 @@
                   (rjsx-mode . prettier)
                   (typescript-mode . prettier)
                   (typescript-ts-mode . prettier)
+                  (tsx-ts-mode . prettier)
                   (css-mode . prettier)
                   (css-ts-mode . prettier)
                   (scss-mode . prettier)
                   (json-mode . prettier)
                   (web-mode . prettier)
                   (html-mode . prettier)
+                  (html-ts-mode . prettier)
                   (yaml-mode . prettier)
                   (js-json-mode . prettier))
                 apheleia-mode-alist))
