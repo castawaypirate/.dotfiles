@@ -91,7 +91,7 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
@@ -687,11 +687,11 @@ require("lazy").setup({
 			--  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
 			--  See `:help lsp-config` for information about keys and how to configure
 			local servers = {
-			  -- C / C++
-			  clangd = {},
+				-- C / C++
+				clangd = {},
 
-			  -- JavaScript / TypeScript
-			  ts_ls = {},
+				-- JavaScript / TypeScript
+				ts_ls = {},
 				-- ESLint (for your linting logic)
 				eslint = {
 					settings = {
@@ -760,6 +760,9 @@ require("lazy").setup({
 				vim.lsp.config(name, server)
 				vim.lsp.enable(name)
 			end
+
+			vim.lsp.config('gdscript', {})
+			vim.lsp.enable('gdscript')
 		end,
 	},
 
@@ -786,15 +789,15 @@ require("lazy").setup({
 				lsp_format = "fallback",
 			},
 			formatters_by_ft = {
-			  lua = { 'stylua' },
-			  c = { 'clang-format' },
-			  cpp = { 'clang-format' },
-			  javascript = { 'prettierd', 'prettier', stop_after_first = true },
-			  typescript = { 'prettierd', 'prettier', stop_after_first = true },
-			  html = { 'prettierd', 'prettier', stop_after_first = true },
-			  css = { 'prettierd', 'prettier', stop_after_first = true },
+				lua = { "stylua" },
+				c = { "clang-format" },
+				cpp = { "clang-format" },
+				javascript = { "prettierd", "prettier", stop_after_first = true },
+				typescript = { "prettierd", "prettier", stop_after_first = true },
+				html = { "prettierd", "prettier", stop_after_first = true },
+				css = { "prettierd", "prettier", stop_after_first = true },
+				gdscript = { "gdformat" },
 			},
-
 		},
 	},
 
@@ -802,16 +805,16 @@ require("lazy").setup({
 		"mfussenegger/nvim-lint",
 		event = { "BufReadPre", "BufNewFile" },
 		config = function()
-		  local lint = require 'lint'
-		  lint.linters_by_ft = {
-		    c = { 'cpplint' },
-		    cpp = { 'cpplint' },
-		    javascript = { 'eslint_d' },
-		    typescript = { 'eslint_d' },
-		    javascriptreact = { 'eslint_d' },
-		    typescriptreact = { 'eslint_d' },
-		  }
-
+			local lint = require("lint")
+			lint.linters_by_ft = {
+				c = { "cpplint" },
+				cpp = { "cpplint" },
+				javascript = { "eslint_d" },
+				typescript = { "eslint_d" },
+				javascriptreact = { "eslint_d" },
+				typescriptreact = { "eslint_d" },
+				gdscript = { "gdlint" },
+			}
 
 			-- Create an autocommand to lint on save/entry
 			vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave" }, {
@@ -1025,19 +1028,19 @@ require("lazy").setup({
 	},
 
 	{
-	  'windwp/nvim-ts-autotag',
-	  opts = {}, -- This enables it automatically
+		"windwp/nvim-ts-autotag",
+		opts = {}, -- This enables it automatically
 	},
 
 	{
-	  'windwp/nvim-autopairs',
-	  event = 'InsertEnter',
-	  config = function()
-	    require('nvim-autopairs').setup {
-        check_ts = true, -- Check for treesitter
-        map_cr = true, -- Map Enter to handle brace splitting automatically
-      }
-	  end,
+		"windwp/nvim-autopairs",
+		event = "InsertEnter",
+		config = function()
+			require("nvim-autopairs").setup({
+				check_ts = true, -- Check for treesitter
+				map_cr = true, -- Map Enter to handle brace splitting automatically
+			})
+		end,
 	},
 
 	{ -- You can easily change to a different colorscheme.

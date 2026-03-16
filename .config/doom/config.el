@@ -3,35 +3,53 @@
 ;; Place your private configuration here! Remember, you do not need to run 'doom
 ;; sync' after modifying this file!
 
-;; ------------------------------------------------------------------
-;; --- USER & BASIC UI ---
-;; ------------------------------------------------------------------
-;;(setq user-full-name "Your Name"
-;;      user-mail-address "you@email.com")
+;; =============================================================================
+;; ### PERFORMANCE OPTIMIZATION
+;; =============================================================================
 
-;; Fonts are defined here (optional, kept commented out as per your original)
-;; (setq doom-font (font-spec :family "Fira Code" :size 12 :weight 'semi-light)
-;;       doom-variable-pitch-font (font-spec :family "Fira Sans" :size 13))
+;; GC optimization - boost threshold during startup for faster load times
+(defadvice! +my-reduce-gc-delay-a ()
+  "Reduce GC delay during startup."
+  :before-while #'doom-initialize
+  (setq gc-cons-threshold most-positive-fixnum)
+  (setq gc-cons-percentage 0.6))
+
+(add-hook! 'emacs-startup-hook
+  (setq gc-cons-threshold (* 16 1024 1024))  ; 16MB after startup
+  (setq gc-cons-percentage 0.1))
+
+
+;; =============================================================================
+;; ### USER & BASIC UI
+;; =============================================================================
 
 (setq doom-theme 'doom-one)
 (setq display-line-numbers-type t)
 
+;; Typography for better writing
+;; (setq doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 14)
+;;       doom-variable-pitch-font (font-spec :family "Fira Sans" :size 15))
 
-;; ------------------------------------------------------------------
-;; --- ORG MODE & ROAM ---
-;; ------------------------------------------------------------------
-;; If you use `org' and don't want your org files in the default location below,
-;; change `org-directory'. It must be set before org loads!
+
+;; =============================================================================
+;; ### ORG MODE & ROAM
+;; =============================================================================
+
+;; Set the base directory for all your notes
 (setq org-directory "~/Notes/org/"
-      org-roam-directory "~/Notes/org/7_roam/") ;; <--- VERIFY THIS PATH IS CORRECT
+      org-roam-directory "~/Notes/org/7_roam/")
 
-;; Keybindings
+;; Ensure directories exist
+(make-directory org-directory t)
+(make-directory org-roam-directory t)
+
+;; Keybindings for moving headings easily
 (after! org
   (map! :map org-mode-map
         :n "M-j" #'org-metadown
         :n "M-k" #'org-metaup))
 
-;; Org-Roam-UI configuration
+;; Org-Roam-UI configuration for visual knowledge graphs
 (use-package! org-roam-ui
   :after org-roam
   :config
@@ -40,32 +58,33 @@
         org-roam-ui-update-on-save t
         org-roam-ui-open-on-start nil))
 
+;; Enable rainbow-mode only for Org and writing modes to see color codes in notes
+(add-hook! '(org-mode-hook markdown-mode-hook) #'rainbow-mode)
 
-;; ------------------------------------------------------------------
-;; --- WEB DEVELOPMENT ---
-;; ------------------------------------------------------------------
-;; Set indentation to 2 spaces for all web technologies
-(setq js-indent-level 2)
-(setq typescript-indent-level 2)
-(setq css-indent-offset 2)
-(setq web-mode-code-indent-offset 2)
-(setq web-mode-css-indent-offset 2)
-(setq web-mode-markup-indent-offset 2)
 
-;; Enable Emmet mode for HTML, CSS, and React/JSX
-(use-package! emmet-mode
-  :hook ((web-mode css-mode js-mode js2-mode rjsx-mode) . emmet-mode)
+;; =============================================================================
+;; ### WRITING STUDIO ENHANCEMENTS
+;; =============================================================================
+
+;; Automatically enable spell checking in Org and Markdown
+(add-hook! '(org-mode-hook markdown-mode-hook) #'flyspell-mode)
+
+;; Org-modern: Makes Org-mode look like a clean document
+(use-package! org-modern
+  :hook (org-mode . org-modern-mode)
   :config
-  ;; Allow emmet to work in JSX/TSX
-  (add-to-list 'emmet-jsx-major-modes 'js2-mode)
-  (add-to-list 'emmet-jsx-major-modes 'typescript-mode)
-  (add-to-list 'emmet-jsx-major-modes 'rjsx-mode))
+  (setq org-modern-star '("◉" "○" "◈" "◇" "✳")
+        org-modern-list '((?+ . "•") (?- . "–"))))
 
-;; Disable LSP formatting for web modes so 'format-all' (Prettier) handles it
-(setq-hook! 'web-mode-hook +format-with-lsp nil)
-(setq-hook! 'js2-mode-hook +format-with-lsp nil)
-(setq-hook! 'typescript-mode-hook +format-with-lsp nil)
-(setq-hook! 'css-mode-hook +format-with-lsp nil)
-
-;; Colorize color strings (e.g. #ff0000) in CSS and HTML
-(add-hook! '(css-mode-hook web-mode-hook) #'rainbow-mode)
+;; Capture Templates for Quick Notes
+(after! org
+  (setq org-capture-templates
+        '(("t" "Personal todo" entry
+           (file+headline +org-capture-todo-file "Inbox")
+           "* TODO %?\n%i\n%a" :prepend t)
+          ("n" "Personal notes" entry
+           (file+headline +org-capture-notes-file "Inbox")
+           "* %u %?\n%i\n%a" :prepend t)
+          ("j" "Journal" entry
+           (file+olp+datetree +org-capture-journal-file)
+           "* %U %?\n%i\n%a" :prepend t))))
