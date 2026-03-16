@@ -1105,6 +1105,23 @@ require("lazy").setup({
 		lazy = false,
 		build = ":TSUpdate",
 		branch = "main",
+		config = function()
+			local parsers = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'gdscript', 'godot_resource' }
+			require('nvim-treesitter').install(parsers)
+			vim.api.nvim_create_autocmd('FileType', {
+				callback = function(args)
+					local buf, filetype = args.buf, args.match
+
+					local language = vim.treesitter.language.get_lang(filetype)
+					if not language then return end
+
+					if not vim.treesitter.language.add(language) then return end
+					vim.treesitter.start(buf, language)
+
+					vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+				end,
+			})
+		end,
 	},
 	-- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
 	-- init.lua. If you want these files, they are in the repository, so you can just download them and
