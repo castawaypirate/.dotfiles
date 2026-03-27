@@ -761,8 +761,8 @@ require("lazy").setup({
 				vim.lsp.enable(name)
 			end
 
-			vim.lsp.config('gdscript', {})
-			vim.lsp.enable('gdscript')
+			vim.lsp.config("gdscript", {})
+			vim.lsp.enable("gdscript")
 		end,
 	},
 
@@ -1024,6 +1024,19 @@ require("lazy").setup({
 			vim.keymap.set("n", "<A-l>", function()
 				harpoon:list():select(4)
 			end, { desc = "Harpoon: File 4" })
+
+			vim.keymap.set("n", "<leader>1", function()
+				harpoon:list():select(1)
+			end, { desc = "Harpoon: File 1" })
+			vim.keymap.set("n", "<leader>2", function()
+				harpoon:list():select(2)
+			end, { desc = "Harpoon: File 2" })
+			vim.keymap.set("n", "<leader>3", function()
+				harpoon:list():select(3)
+			end, { desc = "Harpoon: File 3" })
+			vim.keymap.set("n", "<leader>4", function()
+				harpoon:list():select(4)
+			end, { desc = "Harpoon: File 4" })
 		end,
 	},
 
@@ -1106,16 +1119,34 @@ require("lazy").setup({
 		build = ":TSUpdate",
 		branch = "main",
 		config = function()
-			local parsers = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'gdscript', 'godot_resource' }
-			require('nvim-treesitter').install(parsers)
-			vim.api.nvim_create_autocmd('FileType', {
+			local parsers = {
+				"bash",
+				"c",
+				"diff",
+				"html",
+				"lua",
+				"luadoc",
+				"markdown",
+				"markdown_inline",
+				"query",
+				"vim",
+				"vimdoc",
+				"gdscript",
+				"godot_resource",
+			}
+			require("nvim-treesitter").install(parsers)
+			vim.api.nvim_create_autocmd("FileType", {
 				callback = function(args)
 					local buf, filetype = args.buf, args.match
 
 					local language = vim.treesitter.language.get_lang(filetype)
-					if not language then return end
+					if not language then
+						return
+					end
 
-					if not vim.treesitter.language.add(language) then return end
+					if not vim.treesitter.language.add(language) then
+						return
+					end
 					vim.treesitter.start(buf, language)
 
 					vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
@@ -1180,3 +1211,6 @@ vim.keymap.set("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Next Buffer" })
 
 -- Close the current buffer (without closing Neovim)
 vim.keymap.set("n", "<leader>x", "<cmd>bdelete<cr>", { desc = "[X] Close Buffer" })
+
+-- Open file in broswer
+vim.keymap.set("n", "<leader>o", "<cmd>!xdg-open %<CR>", { desc = "Open file in broswer" })

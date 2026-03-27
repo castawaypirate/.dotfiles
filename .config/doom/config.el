@@ -67,7 +67,7 @@
 ;; =============================================================================
 
 ;; Automatically enable spell checking in Org and Markdown
-(add-hook! '(org-mode-hook markdown-mode-hook) #'flyspell-mode)
+;;(add-hook! '(org-mode-hook markdown-mode-hook) #'flyspell-mode)
 
 ;; Org-modern: Makes Org-mode look like a clean document
 (use-package! org-modern
