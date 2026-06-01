@@ -73,3 +73,9 @@ yarn.lock
 
 # org-roam (optional - you may want to track your notes separately)
 # Notes/org/roam/           # Uncomment if you DON'T want to track notes here
+
+# Fish state (auto-managed, machine-specific)
+.config/fish/fish_variables
+
+# Ghostty
+.config/ghostty/config.ghostty

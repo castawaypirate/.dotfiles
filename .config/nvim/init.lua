@@ -569,21 +569,6 @@ require("lazy").setup({
 		-- Main LSP Configuration
 		"neovim/nvim-lspconfig",
 		dependencies = {
-			-- Automatically install LSPs and related tools to stdpath for Neovim
-			-- Mason must be loaded before its dependents so we need to set it up here.
-			-- NOTE: `opts = {}` is the same as calling `require('mason').setup({})`
-			{
-				"mason-org/mason.nvim",
-				---@module 'mason.settings'
-				---@type MasonSettings
-				---@diagnostic disable-next-line: missing-fields
-				opts = {},
-			},
-			-- Maps LSP server names between nvim-lspconfig and Mason package names.
-			"mason-org/mason-lspconfig.nvim",
-			"WhoIsSethDaniel/mason-tool-installer.nvim",
-
-			-- Useful status updates for LSP.
 			{ "j-hui/fidget.nvim", opts = {} },
 		},
 		config = function()
@@ -607,7 +592,7 @@ require("lazy").setup({
 			--  - and more!
 			--
 			-- Thus, Language Servers are external tools that must be installed separately from
-			-- Neovim. This is where `mason` and related plugins come into play.
+			-- Neovim. On NixOS, these are managed via configuration.nix rather than Mason.
 			--
 			-- If you're wondering about lsp vs treesitter, you can check out the wonderfully
 			-- and elegantly composed help section, `:help lsp-vs-treesitter`
@@ -684,7 +669,7 @@ require("lazy").setup({
 			})
 
 			-- Enable the following language servers
-			--  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
+			--  LSPs are installed via NixOS (see /etc/nixos/nvim.nix)
 			--  See `:help lsp-config` for information about keys and how to configure
 			local servers = {
 				-- C / C++
@@ -692,7 +677,6 @@ require("lazy").setup({
 
 				-- JavaScript / TypeScript
 				ts_ls = {},
-				-- ESLint (for your linting logic)
 				eslint = {
 					settings = {
 						workingDirectory = { mode = "auto" },
@@ -705,7 +689,7 @@ require("lazy").setup({
 					filetypes = { "html", "typescriptreact", "javascriptreact", "css" },
 				},
 
-				stylua = {}, -- Used to format Lua code
+				intelephense = {},
 
 				-- Special Lua Config, as recommended by neovim help docs
 				lua_ls = {
@@ -741,20 +725,6 @@ require("lazy").setup({
 					},
 				},
 			}
-
-			-- Ensure the servers and tools above are installed
-			--
-			-- To check the current status of installed tools and/or manually install
-			-- other tools, you can run
-			--    :Mason
-			--
-			-- You can press `g?` for help in this menu.
-			local ensure_installed = vim.tbl_keys(servers or {})
-			vim.list_extend(ensure_installed, {
-				-- You can add other tools here that you want Mason to install
-			})
-
-			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
 			for name, server in pairs(servers) do
 				vim.lsp.config(name, server)
@@ -828,7 +798,7 @@ require("lazy").setup({
 
 	{ -- Autocompletion
 		"saghen/blink.cmp",
-		event = "VimEnter",
+		lazy = false,
 		version = "1.*",
 		dependencies = {
 			-- Snippet Engine
@@ -862,31 +832,7 @@ require("lazy").setup({
 		---@type blink.cmp.Config
 		opts = {
 			keymap = {
-				-- 'default' (recommended) for mappings similar to built-in completions
-				--   <c-y> to accept ([y]es) the completion.
-				--    This will auto-import if your LSP supports it.
-				--    This will expand snippets if the LSP sent a snippet.
-				-- 'super-tab' for tab to accept
-				-- 'enter' for enter to accept
-				-- 'none' for no mappings
-				--
-				-- For an understanding of why the 'default' preset is recommended,
-				-- you will need to read `:help ins-completion`
-				--
-				-- No, but seriously. Please read `:help ins-completion`, it is really good!
-				--
-				-- All presets have the following mappings:
-				-- <tab>/<s-tab>: move to right/left of your snippet expansion
-				-- <c-space>: Open menu or open docs if already open
-				-- <c-n>/<c-p> or <up>/<down>: Select next/previous item
-				-- <c-e>: Hide menu
-				-- <c-k>: Toggle signature help
-				--
-				-- See :h blink-cmp-config-keymap for defining your own keymap
 				preset = "default",
-
-				-- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
-				--    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
 			},
 
 			appearance = {
@@ -896,9 +842,8 @@ require("lazy").setup({
 			},
 
 			completion = {
-				-- By default, you may press `<c-space>` to show the documentation.
-				-- Optionally, set `auto_show = true` to show the documentation after a delay.
 				documentation = { auto_show = false, auto_show_delay_ms = 500 },
+				trigger = { show_on_insert = true },
 			},
 
 			sources = {

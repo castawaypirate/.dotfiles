@@ -85,6 +85,11 @@
           ("n" "Personal notes" entry
            (file+headline +org-capture-notes-file "Inbox")
            "* %u %?\n%i\n%a" :prepend t)
-          ("j" "Journal" entry
-           (file+olp+datetree +org-capture-journal-file)
-           "* %U %?\n%i\n%a" :prepend t))))
+           ("j" "Journal" entry
+            (file+olp+datetree +org-capture-journal-file)
+            "* %U %?\n%i\n%a" :prepend t))))
+
+(setq shell-file-name (executable-find "bash"))
+(setq-default vterm-shell "/run/current-system/sw/bin/fish")
+(setq-default explicit-shell-file-name "/run/current-system/sw/bin/fish")
+
