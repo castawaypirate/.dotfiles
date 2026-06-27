@@ -73,3 +73,6 @@ yarn.lock
 
 # org-roam (optional - you may want to track your notes separately)
 # Notes/org/roam/           # Uncomment if you DON'T want to track notes here
+
+# Local docs (not tracked in dotfiles)
+docs/

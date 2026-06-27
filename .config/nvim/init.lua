@@ -794,6 +794,8 @@ require("lazy").setup({
 				cpp = { "clang-format" },
 				javascript = { "prettierd", "prettier", stop_after_first = true },
 				typescript = { "prettierd", "prettier", stop_after_first = true },
+				javascriptreact = { "prettierd", "prettier", stop_after_first = true },
+				typescriptreact = { "prettierd", "prettier", stop_after_first = true },
 				html = { "prettierd", "prettier", stop_after_first = true },
 				css = { "prettierd", "prettier", stop_after_first = true },
 				gdscript = { "gdformat" },
@@ -809,10 +811,10 @@ require("lazy").setup({
 			lint.linters_by_ft = {
 				c = { "cpplint" },
 				cpp = { "cpplint" },
-				javascript = { "eslint_d" },
-				typescript = { "eslint_d" },
-				javascriptreact = { "eslint_d" },
-				typescriptreact = { "eslint_d" },
+-- javascript = { "eslint_d" },
+			-- typescript = { "eslint_d" },
+			-- javascriptreact = { "eslint_d" },
+			-- typescriptreact = { "eslint_d" },
 				gdscript = { "gdlint" },
 			}
 
@@ -1133,6 +1135,11 @@ require("lazy").setup({
 				"vimdoc",
 				"gdscript",
 				"godot_resource",
+				"javascript",
+				"typescript",
+				"tsx",
+				"css",
+				"json",
 			}
 			require("nvim-treesitter").install(parsers)
 			vim.api.nvim_create_autocmd("FileType", {
