@@ -54,18 +54,22 @@ in
   users.users.castaway = {
     isNormalUser = true;
     description = "castaway";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" ];
     shell = pkgs.fish;
     packages = with pkgs; [
+      pkgs.transmission_4-qt
+      docker
+      dotnet-sdk
       kdePackages.kate
       phpPackages.composer
       ghostty
       vim-full
+      unstable.pkgs.godot
       ripgrep
-      discord
+      # discord
       git
-      unstable.pkgs.antigravity-fhs
       google-chrome
+      brave
       emacs-pgtk
       fd
       xsel
@@ -81,27 +85,51 @@ in
       gh
       rsync
       openssh
+      kdePackages.ksshaskpass
     ];
   };
 
   programs.firefox.enable = true;
   programs.fish.enable = true;
+  programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [
+    vulkan-loader
+    libGL
+    libx11
+    libxcursor
+    libxinerama
+    libxrandr
+    libxi
+    libxext
+    alsa-lib
+    libxkbcommon
+    wayland
+  ];
 
   nixpkgs.config.allowUnfree = true;
 
   environment.systemPackages = with pkgs; [
     php
     nodejs
+    vesktop
   ];
 
   fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
     nerd-fonts.symbols-only
-    symbola
+    # symbola
   ];
 
   environment.shellAliases = {
     mysql = "mariadb";
+  };
+
+  # Enable Docker and ARM64 emulation for Raspberry Pi cross-compilation
+  virtualisation.docker.enable = true;
+  virtualisation.docker.enableOnBoot = false;
+  boot.binfmt = {
+    emulatedSystems = [ "aarch64-linux" ];
+    preferStaticEmulators = true;
   };
 
   system.stateVersion = "25.11"; 

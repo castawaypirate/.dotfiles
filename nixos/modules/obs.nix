@@ -14,9 +14,10 @@ in
 
     plugins = with pkgs.obs-studio-plugins; [
       # 3. Force DroidCam to use our custom OBS base AND FFmpeg 6
+      # -> FIX applied here: Changed ffmpeg_7 to ffmpeg
       (droidcam-obs.override { 
         obs-studio = obs-with-ffmpeg6;
-        ffmpeg_7 = pkgs.ffmpeg_6; 
+        ffmpeg = pkgs.ffmpeg_6; 
       })
       
       # 4. Safely link your other plugins to the same custom OBS base 
@@ -38,4 +39,3 @@ in
     android-tools 
   ];
 }
-

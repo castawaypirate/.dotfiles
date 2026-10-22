@@ -29,5 +29,8 @@
     # Linters
     cpplint
     eslint_d                        # Fast daemonized eslint for nvim-lint
+
+    # Tools
+    lazygit                         # Git TUI used by snacks.nvim
   ];
 }
