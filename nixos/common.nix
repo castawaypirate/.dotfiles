@@ -61,7 +61,6 @@ in
       phpPackages.composer
       ghostty
       vim-full
-      unstable.pkgs.opencode
       ripgrep
       discord
       git

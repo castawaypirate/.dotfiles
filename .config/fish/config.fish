@@ -6,3 +6,5 @@ alias ll="ls -la"
 
 # Set Ghostty as default terminal for apps that respect $TERMINAL
 set -gx TERMINAL ghostty
+# opencode
+fish_add_path /home/castaway/.opencode/bin
