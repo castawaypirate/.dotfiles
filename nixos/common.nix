@@ -106,12 +106,27 @@ in
     wayland
   ];
 
+  services.tailscale.enable = true;
+
+  # mDNS/DNS-SD (avahi-resolve-address, .local names, service discovery)
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    publish = {
+      enable = true;
+      addresses = true;
+    };
+  };
+
   nixpkgs.config.allowUnfree = true;
 
   environment.systemPackages = with pkgs; [
     php
     nodejs
     vesktop
+    tailscale
+    arp-scan
+    nmap
   ];
 
   fonts.packages = with pkgs; [
