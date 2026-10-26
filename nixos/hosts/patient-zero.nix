@@ -15,6 +15,7 @@
       ../modules/nvim.nix
       ../modules/obs.nix
       ../modules/claude-code.nix
+      ../modules/antigravity.nix
     ];
 
   # Bootloader.
