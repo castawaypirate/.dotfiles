@@ -14,6 +14,7 @@
       ../modules/syncthing.nix
       ../modules/nvim.nix
       ../modules/obs.nix
+      ../modules/claude-code.nix
     ];
 
   # Bootloader.
