@@ -28,9 +28,8 @@
   # MariaDB (MySQL-compatible)
   services.mysql = {
     enable = true;
-    package = pkgs.mariadb; 
+    package = pkgs.mariadb;
+    # Local development only: accept connections from this machine
+    settings.mysqld.bind-address = "127.0.0.1";
   };
-
-  # Open port 80 for HTTP and 6969 for blog backend
-  networking.firewall.allowedTCPPorts = [ 80 6969 ];
 }

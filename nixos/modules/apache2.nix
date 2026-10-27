@@ -10,8 +10,10 @@
     
     adminAddr = "admin@localhost";
     
+    # Local development only: every vhost listens on loopback (IPv4 + IPv6)
     virtualHosts = {
       "localhost" = {
+        listen = [ { ip = "127.0.0.1"; port = 80; } { ip = "[::1]"; port = 80; } ];
         documentRoot = "/var/www/localhost";
         extraConfig = ''
           Alias /adminer "${pkgs.adminer}/"
@@ -23,7 +25,7 @@
       };
       
       "blogdotbackend" = {
-        listen = [{ port = 6969; }];
+        listen = [ { ip = "127.0.0.1"; port = 6969; } { ip = "[::1]"; port = 6969; } ];
         documentRoot = "/home/castaway/Projects/blogdot/blog.backend";
         extraConfig = ''
           <Directory "/home/castaway/Projects/blogdot/blog.backend">
@@ -36,7 +38,7 @@
       };
 
       "blogdotfrontend" = {
-        listen = [{ port = 7000; }];
+        listen = [ { ip = "127.0.0.1"; port = 7000; } { ip = "[::1]"; port = 7000; } ];
         documentRoot = "/home/castaway/Projects/blogdot/blog.frontend";
         extraConfig = ''
           <Directory "/home/castaway/Projects/blogdot/blog.frontend">
