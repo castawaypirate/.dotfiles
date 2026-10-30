@@ -57,14 +57,14 @@ in
     extraGroups = [ "networkmanager" "wheel" "docker" ];
     shell = pkgs.fish;
     packages = with pkgs; [
-      pkgs.transmission_4-qt
+      transmission_4-qt
       docker
       dotnet-sdk
       kdePackages.kate
       phpPackages.composer
       ghostty
       vim-full
-      unstable.pkgs.godot
+      unstable.godot
       ripgrep
       # discord
       git
@@ -93,7 +93,7 @@ in
   programs.fish.enable = true;
   programs.gnupg.agent = {
     enable = true;
-    pinentryPackage = pkgs.pinentry-curses;
+    pinentryPackage = pkgs.pinentry-qt;
   };
   programs.nix-ld.enable = true;
   programs.nix-ld.libraries = with pkgs; [
@@ -127,11 +127,10 @@ in
   environment.systemPackages = with pkgs; [
     php
     nodejs
-    unstable.pkgs.vesktop # >=1.6.7 has WebRTC IP Handling Policy (fixes DTLS stall with Tailscale)
+    unstable.vesktop # >=1.6.7 has WebRTC IP Handling Policy (fixes DTLS stall with Tailscale)
     tailscale
     arp-scan
     nmap
-    gnupg
   ];
 
   fonts.packages = with pkgs; [
