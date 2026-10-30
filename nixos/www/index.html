@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NixOS</title>
+  <style>
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+    body {
+      background: #1a1b26;
+      color: #c0caf5;
+      font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", ui-monospace, monospace;
+    }
+    canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; }
+    h1 {
+      position: fixed; left: 0; right: 0; margin: 0;
+      text-align: center; font-size: 1.5rem; font-weight: 400; letter-spacing: 0.4em;
+      pointer-events: none;
+    }
+    #hint {
+      position: fixed; left: 0; right: 0; bottom: 1.5rem;
+      text-align: center; font-size: 0.85rem; color: #565f89;
+      opacity: 0; transition: opacity 0.4s; pointer-events: none;
+    }
+    #hint.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <canvas id="logo" role="img" aria-label="Pixelated NixOS snowflake"></canvas>
+  <h1>NixOS</h1>
+  <div id="hint"></div>
+
+  <!-- 48x48 pixel map: 0-5 = lambda index (even dark blue, odd light blue), . = empty -->
+  <script id="map" type="text/plain">
+................................................
+................................................
+.................33333......3333................
+.................333333.....33333...............
+..................333333...333333...............
+..................333333...33333................
+........2222.......333333.333333................
+........2222........33333333333.................
+.......222222.......33333333333.......444.......
+.......222222........333333333.......4444.......
+........222222.......33333333........44444......
+.........22222........3333333.......444444......
+.........222222.......333333........44444.......
+..........222222.......333333......444444.......
+..........222222........33333......44444........
+...22222222222222222222.333333....444444........
+...222222222222222222222.333333..444444.........
+..22222222222222222222222333333..4444444444444..
+..22222222222222222222222.33333.444444444444444.
+..22222222222222222222222.33333.444444444444444.
+...............11111.......333.444444444444444..
+...............11111........33.444444444444444..
+..............111111..........444444............
+.............111111..........444444.............
+.............111111..........444444.............
+............111111..........444444..............
+..111111111111111.00........44444...............
+..111111111111111.000.......44444...............
+.111111111111111.00000.55555555555555555555555..
+.111111111111111.00000.55555555555555555555555..
+..1111111111111..00000055555555555555555555555..
+.........111111..000000.555555555555555555555...
+........111111....000000.55555555555555555555...
+........11111......00000........555555..........
+.......111111......000000.......555555..........
+.......11111........000000.......555555.........
+......111111.......0000000........55555.........
+......11111........00000000.......555555........
+.......1111.......000000000........555555.......
+.......111.......00000000000.......555555.......
+.................00000000000........5555........
+................000000.000000.......5555........
+................00000...000000..................
+...............000000...000000..................
+...............00000.....000000.................
+................0000......00000.................
+................................................
+................................................
+  </script>
+  <script>
+    // Shift cycles the logo effect, Ctrl toggles the background; both persist in localStorage.
+    const MODES = ["snowfall", "lambda glow", "cursor repel", "click to explode"];
+    const BACKGROUNDS = ["snow", "plain"];
+    const COLORS = [[82, 119, 195], [126, 186, 228]];   // #5277c3, #7ebae4
+    const SPRING = 60, DAMPING = 9;                       // pull back to home, per second
+
+    const canvas = document.getElementById("logo");
+    const ctx = canvas.getContext("2d");
+    const title = document.querySelector("h1");
+    const hint = document.getElementById("hint");
+    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const load = (key, list) => { try { return Math.max(0, list.indexOf(localStorage.getItem(key))); } catch { return 0; } };
+    const save = (key, value) => { try { localStorage.setItem(key, value); } catch {} };
+    let mode = load("nixlogo.mode", MODES);
+    let background = load("nixlogo.background", BACKGROUNDS);
+
+    // One particle per filled cell; positions and velocities are in cell units.
+    const rows = document.getElementById("map").textContent.trim().split("\n");
+    const pixels = [];
+    rows.forEach((row, y) => [...row].forEach((ch, x) => {
+      if (ch === ".") return;
+      pixels.push({ hx: x, hy: y, x, y, vx: 0, vy: 0, lambda: +ch, falling: false, delay: 0, phase: Math.random() * 6.28 });
+    }));
+
+    // Layout: integer device pixels per cell keeps the edges crisp.
+    let dpr = 1, cell = 1, originX = 0, originY = 0;
+    function layout() {
+      dpr = devicePixelRatio || 1;
+      canvas.width = Math.round(innerWidth * dpr);
+      canvas.height = Math.round(innerHeight * dpr);
+      const size = Math.min(0.6 * Math.min(innerWidth, innerHeight), 480);
+      cell = Math.max(1, Math.floor(size * dpr / 48));
+      originX = Math.round((canvas.width - cell * 48) / 2);
+      originY = Math.round((canvas.height - cell * 48) / 2 - canvas.height * 0.04);
+      title.style.top = (originY + cell * 48) / dpr + 24 + "px";
+      flakes = makeFlakes();
+      if (reduceMotion) draw(0);
+    }
+
+    // Background snow: small dim squares drifting down, in device pixels.
+    let flakes = [];
+    function makeFlakes() {
+      const count = Math.round(innerWidth * innerHeight / 9000);
+      return Array.from({ length: count }, () => ({
+        x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+        size: Math.round((1 + Math.random() * 2) * dpr * 1.5),
+        speed: (15 + Math.random() * 30) * dpr, alpha: 0.12 + Math.random() * 0.3,
+        phase: Math.random() * 6.28,
+      }));
+    }
+
+    // Effects --------------------------------------------------------------
+    let time = 0, pointer = null, explodedAt = -Infinity;
+
+    function startSnowfall() {
+      const top = -originY / cell - 2;   // just above the viewport
+      for (const p of pixels) {
+        p.falling = true;
+        p.x = p.hx;
+        p.y = top - Math.random() * 20;
+        p.vx = p.vy = 0;
+        p.delay = time + (47 - p.hy) * 0.035 + Math.random() * 0.6;   // bottom rows land first
+      }
+    }
+
+    function explode(cx, cy) {
+      explodedAt = time;
+      for (const p of pixels) {
+        const dx = p.x - cx, dy = p.y - cy, d = Math.hypot(dx, dy) || 1;
+        const speed = 25 + Math.random() * 25;
+        p.vx = dx / d * speed + (Math.random() - 0.5) * 10;
+        p.vy = dy / d * speed + (Math.random() - 0.5) * 10;
+        p.falling = false;
+      }
+    }
+
+    function step(dt) {
+      // After an explosion spring and damping fade back in, so pixels fly out before returning.
+      const springScale = Math.min(1, ((time - explodedAt) / 1.2) ** 2);
+      for (const p of pixels) {
+        if (p.falling) {
+          if (time < p.delay) continue;
+          p.vy += 60 * dt;
+          p.y += p.vy * dt;
+          p.x = p.hx + Math.sin(time * 3 + p.phase) * Math.min(1.5, (p.hy - p.y) * 0.05);
+          if (p.y >= p.hy) { p.falling = false; p.y = p.hy; p.vy = Math.min(p.vy, 8); }
+          continue;
+        }
+        const damping = DAMPING * Math.max(0.1, springScale);
+        let ax = (p.hx - p.x) * SPRING * springScale - p.vx * damping;
+        let ay = (p.hy - p.y) * SPRING * springScale - p.vy * damping;
+        if (MODES[mode] === "cursor repel" && pointer) {
+          const dx = p.x - pointer.x, dy = p.y - pointer.y, d = Math.hypot(dx, dy);
+          if (d < 7 && d > 0.01) { const f = (1 - d / 7) * 900 / d; ax += dx * f; ay += dy * f; }
+        }
+        p.vx += ax * dt; p.vy += ay * dt;
+        p.x += p.vx * dt; p.y += p.vy * dt;
+      }
+      if (BACKGROUNDS[background] === "snow") {
+        for (const f of flakes) {
+          f.y += f.speed * dt;
+          f.x += Math.sin(time + f.phase) * 0.3 * dpr;
+          if (f.y > canvas.height) { f.y = -f.size; f.x = Math.random() * canvas.width; }
+        }
+      }
+    }
+
+    // Lambda glow: a light runs around the six lambdas, ~0.35 s each.
+    function glow(lambda) {
+      if (MODES[mode] !== "lambda glow") return 0;
+      const head = (time / 0.35) % 6;
+      const dist = (head - lambda + 6) % 6;   // how far behind the light this lambda is
+      return Math.max(0, 1 - dist / 2);
+    }
+
+    function draw() {
+      ctx.fillStyle = "#1a1b26";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      if (BACKGROUNDS[background] === "snow" && !reduceMotion) {
+        for (const f of flakes) {
+          ctx.fillStyle = `rgba(192, 202, 245, ${f.alpha})`;
+          ctx.fillRect(Math.round(f.x), Math.round(f.y), f.size, f.size);
+        }
+      }
+      for (const p of pixels) {
+        const [r, g, b] = COLORS[p.lambda % 2], k = glow(p.lambda) * 0.55;
+        ctx.fillStyle = `rgb(${r + (255 - r) * k}, ${g + (255 - g) * k}, ${b + (255 - b) * k})`;
+        ctx.fillRect(originX + Math.round(p.x * cell), originY + Math.round(p.y * cell), cell, cell);
+      }
+    }
+
+    let last = 0;
+    function frame(now) {
+      const dt = Math.min((now - last) / 1000, 1 / 30);
+      last = now; time += dt;
+      step(dt); draw();
+      requestAnimationFrame(frame);
+    }
+
+    // Input ----------------------------------------------------------------
+    let hintTimer;
+    function showHint(text) {
+      hint.textContent = text;
+      hint.classList.add("show");
+      clearTimeout(hintTimer);
+      hintTimer = setTimeout(() => hint.classList.remove("show"), 2200);
+    }
+
+    function setMode(next) {
+      mode = next;
+      save("nixlogo.mode", MODES[mode]);
+      if (MODES[mode] === "snowfall") startSnowfall();
+      showHint(`effect: ${MODES[mode]}  ·  shift`);
+    }
+
+    // Shift / Ctrl act only when pressed and released alone, so Ctrl+C, Ctrl+R etc. still work.
+    let lone = null;
+    addEventListener("keydown", e => { lone = (e.key === "Shift" || e.key === "Control") && !e.repeat ? e.key : null; });
+    addEventListener("keyup", e => {
+      if (e.key !== lone) return;
+      lone = null;
+      if (reduceMotion) return;
+      if (e.key === "Shift") setMode((mode + 1) % MODES.length);
+      else {
+        background = (background + 1) % BACKGROUNDS.length;
+        save("nixlogo.background", BACKGROUNDS[background]);
+        showHint(`background: ${BACKGROUNDS[background]}  ·  ctrl`);
+      }
+    });
+    addEventListener("blur", () => { lone = null; });
+    addEventListener("pointerdown", () => { lone = null; });
+
+    const toCells = e => ({ x: (e.clientX * dpr - originX) / cell, y: (e.clientY * dpr - originY) / cell });
+    addEventListener("pointermove", e => { pointer = toCells(e); });
+    document.addEventListener("pointerleave", () => { pointer = null; });
+    canvas.addEventListener("click", e => {
+      if (MODES[mode] === "snowfall") startSnowfall();
+      else if (MODES[mode] === "click to explode") { const c = toCells(e); explode(c.x, c.y); }
+    });
+
+    addEventListener("resize", layout);
+    layout();
+    if (!reduceMotion) {
+      if (MODES[mode] === "snowfall") startSnowfall();
+      showHint("shift: effect  ·  ctrl: background");
+      requestAnimationFrame(now => { last = now; requestAnimationFrame(frame); });
+    }
+  </script>
+</body>
+</html>

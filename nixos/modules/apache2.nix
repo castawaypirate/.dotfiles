@@ -14,7 +14,8 @@
     virtualHosts = {
       "localhost" = {
         listen = [ { ip = "127.0.0.1"; port = 80; } { ip = "[::1]"; port = 80; } ];
-        documentRoot = "/var/www/localhost";
+        # Pixelated NixOS logo page, copied into the Nix store so it always exists
+        documentRoot = ../www;
         extraConfig = ''
           Alias /adminer "${pkgs.adminer}/"
           <Directory "${pkgs.adminer}/">
