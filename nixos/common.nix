@@ -91,6 +91,10 @@ in
 
   programs.firefox.enable = true;
   programs.fish.enable = true;
+  programs.gnupg.agent = {
+    enable = true;
+    pinentryPackage = pkgs.pinentry-curses;
+  };
   programs.nix-ld.enable = true;
   programs.nix-ld.libraries = with pkgs; [
     vulkan-loader
@@ -123,10 +127,11 @@ in
   environment.systemPackages = with pkgs; [
     php
     nodejs
-    vesktop
+    unstable.pkgs.vesktop # >=1.6.7 has WebRTC IP Handling Policy (fixes DTLS stall with Tailscale)
     tailscale
     arp-scan
     nmap
+    gnupg
   ];
 
   fonts.packages = with pkgs; [

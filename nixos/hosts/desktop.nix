@@ -31,5 +31,7 @@
     package = pkgs.mariadb;
     # Local development only: accept connections from this machine
     settings.mysqld.bind-address = "127.0.0.1";
+    # Run scheduled events (blogdot's delete_users), same as production
+    settings.mysqld.event_scheduler = "ON";
   };
 }
