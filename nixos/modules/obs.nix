@@ -1,28 +1,29 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 let
-  # 1. Create a custom version of OBS Studio that runs on FFmpeg 6
-  obs-with-ffmpeg6 = pkgs.obs-studio.override { ffmpeg = pkgs.ffmpeg_6; };
+  # OBS and DroidCam must link the same FFmpeg (libavcodec ABI); stock nixpkgs
+  # builds both against the default ffmpeg, so no override is needed
+  ffmpegOf = drv: lib.findFirst (p: (p.pname or "") == "ffmpeg") null drv.buildInputs;
+  obsFfmpeg = ffmpegOf pkgs.obs-studio;
+  droidFfmpeg = ffmpegOf pkgs.obs-studio-plugins.droidcam-obs;
 in
 {
+  # Fail the rebuild instead of crashing OBS if nixpkgs ever splits them
+  # (recovery steps: ~/System/obs_droidcam_rollback.md)
+  assertions = [{
+    assertion = obsFfmpeg.version == droidFfmpeg.version;
+    message = "droidcam-obs uses ffmpeg ${droidFfmpeg.version} but OBS uses ${obsFfmpeg.version}";
+  }];
+
   programs.obs-studio = {
     enable = true;
     enableVirtualCamera = true;
-    
-    # 2. Tell NixOS to use our custom OBS instead of the default one
-    package = obs-with-ffmpeg6;
 
     plugins = with pkgs.obs-studio-plugins; [
-      # 3. Force DroidCam to use our custom OBS base AND FFmpeg 6
-      (droidcam-obs.override { 
-        obs-studio = obs-with-ffmpeg6;
-        ffmpeg = pkgs.ffmpeg_6; 
-      })
-      
-      # 4. Safely link your other plugins to the same custom OBS base 
-      # (Prevents instant crashes from mismatched OBS versions)
-      (obs-pipewire-audio-capture.override { obs-studio = obs-with-ffmpeg6; })
-      (obs-backgroundremoval.override { obs-studio = obs-with-ffmpeg6; })
+      droidcam-obs
+      # Fallback if the assertion fails: (droidcam-obs.override { ffmpeg = obsFfmpeg; })
+      obs-pipewire-audio-capture
+      obs-backgroundremoval
 
       # wlrobs (for hyprland?)
     ];
@@ -30,11 +31,11 @@ in
 
   boot.kernelModules = [ "v4l2loopback" ];
   boot.extraModulePackages = [ config.boot.kernelPackages.v4l2loopback ];
-  security.polkit.enable = true; 
+  security.polkit.enable = true;
 
   environment.systemPackages = with pkgs; [
-    droidcam      
-    v4l-utils     
-    android-tools 
+    droidcam
+    v4l-utils
+    android-tools
   ];
 }
