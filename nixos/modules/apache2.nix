@@ -4,6 +4,11 @@
   services.httpd = {
     enable = true;
     enablePHP = true;
+    # profile pictures may be up to 10MB; the post limit leaves room for the multipart overhead
+    phpOptions = ''
+      upload_max_filesize = 10M
+      post_max_size = 12M
+    '';
     
     user = "castaway";
     group = "users";
