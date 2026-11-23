@@ -108,6 +108,11 @@ in
     alsa-lib
     libxkbcommon
     wayland
+    # Optional libraries the official Godot build loads at startup: system fonts, D-Bus
+    # (screensaver inhibit, portals), PulseAudio (sound otherwise falls back to ALSA).
+    fontconfig
+    dbus
+    libpulseaudio
   ];
 
   services.tailscale.enable = true;
