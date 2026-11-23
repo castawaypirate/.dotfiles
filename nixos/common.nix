@@ -95,6 +95,9 @@ in
     enable = true;
     pinentryPackage = pkgs.pinentry-qt;
   };
+  # ssh-agent: caches SSH key passphrases for the session (used by ~/.ssh/config AddKeysToAgent)
+  programs.ssh.startAgent = true;
+  programs.ssh.askPassword = "${pkgs.kdePackages.ksshaskpass}/bin/ksshaskpass";
   programs.nix-ld.enable = true;
   programs.nix-ld.libraries = with pkgs; [
     vulkan-loader
@@ -130,6 +133,12 @@ in
   nixpkgs.config.allowUnfree = true;
 
   environment.systemPackages = with pkgs; [
+    # SDDM (login screen after logout) runs as the sddm user and can't read ~/Pictures,
+    # so give the breeze theme a background from the nix store.
+    (writeTextDir "share/sddm/themes/breeze/theme.conf.user" ''
+      [General]
+      background=${./wallpapers/1_neuro.png}
+    '')
     php
     nodejs
     unstable.vesktop # >=1.6.7 has WebRTC IP Handling Policy (fixes DTLS stall with Tailscale)
