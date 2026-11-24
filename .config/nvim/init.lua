@@ -90,6 +90,9 @@ P.S. You can delete this when you're done too. It's your config now! :)
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
+-- EJS support: treat .ejs files as HTML
+vim.filetype.add({ extension = { ejs = "html" } })
+
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
 
@@ -270,6 +273,8 @@ rtp:prepend(lazypath)
 require("lazy").setup({
 	-- NOTE: Plugins can be added via a link or github org/name. To run setup automatically, use `opts = {}`
 	{ "NMAC427/guess-indent.nvim", opts = {} },
+
+	{ "prisma/vim-prisma" },
 
 	{
 		"echasnovski/mini.icons",
@@ -692,6 +697,10 @@ require("lazy").setup({
 
 				-- JavaScript / TypeScript
 				ts_ls = {},
+
+				-- Prisma
+				prismals = {},
+
 				-- ESLint (for your linting logic)
 				eslint = {
 					settings = {
@@ -799,6 +808,7 @@ require("lazy").setup({
 				html = { "prettierd", "prettier", stop_after_first = true },
 				css = { "prettierd", "prettier", stop_after_first = true },
 				gdscript = { "gdformat" },
+				prisma = { lsp_format = "fallback" },
 			},
 		},
 	},
@@ -811,10 +821,10 @@ require("lazy").setup({
 			lint.linters_by_ft = {
 				c = { "cpplint" },
 				cpp = { "cpplint" },
--- javascript = { "eslint_d" },
-			-- typescript = { "eslint_d" },
-			-- javascriptreact = { "eslint_d" },
-			-- typescriptreact = { "eslint_d" },
+				-- javascript = { "eslint_d" },
+				-- typescript = { "eslint_d" },
+				-- javascriptreact = { "eslint_d" },
+				-- typescriptreact = { "eslint_d" },
 				gdscript = { "gdlint" },
 			}
 
@@ -1027,18 +1037,13 @@ require("lazy").setup({
 				harpoon:list():select(4)
 			end, { desc = "Harpoon: File 4" })
 
-			vim.keymap.set("n", "<leader>1", function()
-				harpoon:list():select(1)
-			end, { desc = "Harpoon: File 1" })
-			vim.keymap.set("n", "<leader>2", function()
-				harpoon:list():select(2)
-			end, { desc = "Harpoon: File 2" })
-			vim.keymap.set("n", "<leader>3", function()
-				harpoon:list():select(3)
-			end, { desc = "Harpoon: File 3" })
-			vim.keymap.set("n", "<leader>4", function()
-				harpoon:list():select(4)
-			end, { desc = "Harpoon: File 4" })
+			-- Space+1..9 go to files 1-9, Space+0 goes to file 10
+			for i = 1, 10 do
+				local key = i % 10 -- 10 -> 0
+				vim.keymap.set("n", "<leader>" .. key, function()
+					harpoon:list():select(i)
+				end, { desc = "Harpoon: File " .. i })
+			end
 		end,
 	},
 
