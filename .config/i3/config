@@ -61,7 +61,8 @@ bindsym Shift+Print exec --no-startup-id flameshot gui
 floating_modifier $mod
 
 # start a terminal
-bindsym $mod+Return exec i3-sensible-terminal
+# Ghostty without its GTK header bar (only when launched from i3)
+bindsym $mod+Return exec ghostty --gtk-titlebar=false
 
 # kill focused window
 bindsym $mod+c kill
