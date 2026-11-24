@@ -140,6 +140,10 @@ export PATH="$PATH:$HOME/System/Godot"
 
 . "$HOME/.atuin/bin/env"
 
+# Ubuntu's VTE script leaves PS0 ending in ESC+backslash. On bash 5.3 that
+# backslash escapes the "$" of bash-preexec's ${ ...; } hook, which then gets
+# printed after every command. End that sequence with BEL instead.
+PS0=${PS0//$'\e\\'/$'\a'}
 [[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
 eval "$(atuin init bash)"
 
