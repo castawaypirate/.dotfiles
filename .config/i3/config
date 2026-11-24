@@ -46,6 +46,9 @@ exec --no-startup-id nm-applet
 # Polkit agent: GUI password prompts (e.g. OBS Virtual Camera loading v4l2loopback)
 exec --no-startup-id lxpolkit
 
+# Compositor: stops stale pixels (e.g. left by notifications) on GTK4/OpenGL apps like Ghostty
+exec --no-startup-id picom --backend glx
+
 # Use pactl to adjust volume in PulseAudio.
 set $refresh_i3status killall -SIGUSR1 i3status
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +10% && $refresh_i3status
